@@ -15,9 +15,8 @@ class AddCategoryPage extends StatefulWidget {
 class _AddCategoryPageState extends State<AddCategoryPage> {
   // final db = MyDatabase.instance;
 
-  final TextEditingController _categoryNameController = TextEditingController();
 
-  int _selectedIndex = 0;
+  late List<IconData> _availableIcons; 
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +29,40 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done &&
                   snapshot.data != null) {
-                return Column(
+                    _availableIcons = snapshot.data as List<IconData>;
+                    return AddCategoryPageChild(availableIcons: _availableIcons);
+                } else {
+                return Center(child: CircularProgressIndicator());
+              }
+            },
+          ),
+        );
+      },
+    );
+  }
+}
+
+
+
+class AddCategoryPageChild extends StatefulWidget {
+
+  final List<IconData> availableIcons; 
+
+  const AddCategoryPageChild({super.key, required this.availableIcons});
+
+  @override
+  State<AddCategoryPageChild> createState() => AddCategoryPageChildState();
+}
+
+class AddCategoryPageChildState extends State<AddCategoryPageChild> {
+
+
+  int _selectedIndex = 0;
+  final TextEditingController _categoryNameController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
                   children: [
                     SizedBox(height: 20),
                     SizedBox(
@@ -51,8 +83,9 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
                           SizedBox(width: 5),
                           TextButton(
                             onPressed: () async {
+                              final db = MyDatabase.instance;
                               String iconDataForDatabase =
-                                  "${snapshot.data![_selectedIndex].fontFamily.toString()}__${snapshot.data![_selectedIndex].codePoint}";
+                                  "${widget.availableIcons[_selectedIndex].fontFamily.toString()}__${widget.availableIcons[_selectedIndex].codePoint}";
                               db.insertCategory(
                                 CategoryModel(
                                   name: _categoryNameController.text,
@@ -72,7 +105,7 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
                       child: GridView.count(
                         crossAxisCount: 5,
                         children: List.generate(
-                          snapshot.data!.length,
+                          widget.availableIcons.length,
                           (index) {
                             return Container(
                               decoration: BoxDecoration(
@@ -88,7 +121,7 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
                                   });
                                 },
                                 icon: Icon(
-                                  snapshot.data![index],
+                                  widget.availableIcons[index],
                                   color: _selectedIndex == index
                                       ? Theme.of(context).colorScheme.primary
                                       : Theme.of(context)
@@ -103,13 +136,6 @@ class _AddCategoryPageState extends State<AddCategoryPage> {
                     ),
                   ],
                 );
-              } else {
-                return Center(child: CircularProgressIndicator());
-              }
-            },
-          ),
-        );
-      },
-    );
+              
   }
 }

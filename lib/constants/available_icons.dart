@@ -86,4 +86,10 @@ Set<IconData> availableIconsCategory = {
 
   // more
   Icons.local_grocery_store,
+
+  // initial icons
+  Icons.shopping_cart,
+  Icons.receipt,
+  Icons.more_horiz,
+
 };

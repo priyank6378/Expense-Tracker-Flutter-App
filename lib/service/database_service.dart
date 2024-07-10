@@ -62,6 +62,16 @@ class MyDatabase extends ChangeNotifier {
 
     // commiting
     await batch.commit();
+
+    // inserting initial categories
+    for (int i = 0; i < initialCategories.length; i++) {
+      await db.insert(
+        categoryTableName,
+        initialCategories[i].toMap(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+
   }
 
   // close the database
@@ -86,7 +96,19 @@ class MyDatabase extends ChangeNotifier {
     // print(expense);
 
     expense.title = expense.title.substring(0, 1).toUpperCase() +
-        expense.name.substring(1).toLowerCase();
+        expense.title.substring(1).toLowerCase();
+
+    String categoryName = expense.name;
+    final List<Map<String, Object?>> x = await db.query(
+      categoryTableName,
+      where: 'name = ?',
+      whereArgs: [categoryName],
+    );
+
+    if (x.length == 0) {
+      SnackBar(content: Text('Category does not exist'));
+      return;
+    }
 
     await db.insert(
       expenseTableName,
@@ -366,4 +388,69 @@ String getTodayDate() {
   return DateTime.now().toIso8601String().split('T').first;
 }
 
+String iconString(IconData icon) {
+  return '${icon.fontFamily}__${icon.codePoint}';
+}
+
 // //
+
+
+// //
+////////////// INTIAL CATEGORIES ////////////////
+final List<CategoryModel> initialCategories = [
+  // food 
+  CategoryModel(
+    name: 'Food',
+    icon: iconString(Icons.fastfood),
+  ),
+
+  // shopping
+  CategoryModel(
+    name: 'Shopping',
+    icon: iconString(Icons.shopping_cart),
+  ),
+
+  // bills
+  CategoryModel(
+    name: 'Bills',
+    icon: iconString(Icons.receipt),
+  ),
+
+  // transport
+  CategoryModel(
+    name: 'Transport',
+    icon: iconString(Icons.directions_bus),
+  ),
+
+  // entertainment
+  CategoryModel(
+    name: 'Entertainment',
+    icon: iconString(Icons.movie),
+  ),
+
+  // health
+  CategoryModel(
+    name: 'Health',
+    icon: iconString(Icons.local_hospital),
+  ),
+
+  // education
+  CategoryModel(
+    name: 'Education',
+    icon: iconString(Icons.school),
+  ),
+
+  // others
+  CategoryModel(
+    name: 'Others',
+    icon: iconString(Icons.more_horiz),
+  ),
+
+  // income
+  CategoryModel(
+    name: 'Income',
+    icon: iconString(Icons.attach_money),
+  ),
+];
+
+
